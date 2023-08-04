@@ -5,11 +5,14 @@
 mod platform;
 mod math;
 
-use platform::{Handle, VK};
+extern crate core;
+use core::fmt;
+use platform::{Cursor, Handle, VK};
 
-use std::thread;
+use std::{thread};
 use std::time;
 use std::collections::BTreeMap;
+use std::fmt::Formatter;
 
 const SHOW_MAX_HITS: usize = 5;
 
@@ -17,6 +20,15 @@ const SHOW_MAX_HITS: usize = 5;
 enum Mode {
     ANGLE,
     VELOCITY,
+}
+
+impl fmt::Display for Mode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Mode::ANGLE => write!(f, "ANGLE"),
+            Mode::VELOCITY => write!(f, "VELOCITY")
+        }
+    }
 }
 
 fn main() {
@@ -33,14 +45,18 @@ fn main() {
 
 fn start_event_loop<H: Handle>(handle: H) {
     let mut mode = Mode::VELOCITY;
-    let mut source = Option::None;
-    let mut target = Option::None;
+    let mut source = None;
+    let mut target = None;
 
     let mut vk1_state = false;
     let mut vk2_state = false;
     let mut vk3_state = false;
     let mut vk4_state = false;
     let mut vk5_state = false;
+    let mut vk6_state = false;
+
+    println!();
+    print_info(&None, &None, &mode);
 
     loop {
         thread::sleep(time::Duration::from_millis(10)); // sleep duration in milliseconds
@@ -50,14 +66,17 @@ fn start_event_loop<H: Handle>(handle: H) {
         let vk3_key_down = handle.is_key_pressed(VK::Key3);
         let vk4_key_down = handle.is_key_pressed(VK::Key4);
         let vk5_key_down = handle.is_key_pressed(VK::Key5);
+        let vk6_key_down = handle.is_key_pressed(VK::Key6);
 
         // Set position 1
         if vk1_key_down && !vk1_state {
             vk1_state = true;
 
             let position = handle.get_mouse_position_in_window();
-            println!("[INFO] Position 1 set.");
-            source = Option::Some(position);
+            source = Some(position);
+
+            clearscreen::clear().unwrap();
+            print_info(&source, &target, &mode);
         } else if !vk1_key_down {
             vk1_state = false
         }
@@ -67,8 +86,10 @@ fn start_event_loop<H: Handle>(handle: H) {
             vk2_state = true;
 
             let position = handle.get_mouse_position_in_window();
-            println!("[INFO] Position 2 set.");
-            target = Option::Some(position);
+            target = Some(position);
+
+            clearscreen::clear().unwrap();
+            print_info(&source, &target, &mode);
         } else if !vk2_key_down {
             vk2_state = false
         }
@@ -82,7 +103,7 @@ fn start_event_loop<H: Handle>(handle: H) {
                 let from = source.as_ref().unwrap();
                 let to = target.as_ref().unwrap();
 
-                let target_pos = math::translate_target_position_relativ_to_origin(&rect, from, to);
+                let target_pos = math::translate_target_position_relative_to_origin(&rect, from, to);
 
                 let hits = match mode {
                     Mode::ANGLE => math::calc_launch_angles(target_pos.0, target_pos.1),
@@ -99,14 +120,16 @@ fn start_event_loop<H: Handle>(handle: H) {
         if vk4_key_down && !vk4_state {
             vk4_state = true;
 
-            source = Option::None;
-            target = Option::None;
-            println!("[INFO] Positions cleared.");
+            source = None;
+            target = None;
+
+            clearscreen::clear().unwrap();
+            print_info(&source, &target, &mode);
         } else if !vk4_key_down {
             vk4_state = false
         }
 
-        // Switch calculation mode123
+        // Switch calculation mode
         if vk5_key_down && !vk5_state {
             vk5_state = true;
 
@@ -116,9 +139,22 @@ fn start_event_loop<H: Handle>(handle: H) {
                 Mode::ANGLE
             };
 
-            println!("[INFO] Mode changed to '{:?}'.", mode);
+            clearscreen::clear().unwrap();
+            print_info(&source, &target, &mode);
         } else if !vk5_key_down {
             vk5_state = false
+        }
+
+        // Clear console
+        if vk6_key_down && !vk6_state {
+            vk6_state = true;
+
+            clearscreen::clear().expect("Failed to clear screen");
+
+            clearscreen::clear().unwrap();
+            print_info(&source, &target, &mode)
+        } else if !vk6_key_down {
+            vk6_state = false
         }
     }
 }
@@ -148,14 +184,42 @@ fn into_angle_categories(hits: &Vec<math::Hit>) -> BTreeMap<i32, Vec<&math::Hit>
 
     for hit in hits {
         let angle = hit.get_angle();
-        let categorie = (angle / 10) * 10;
+        let category = (angle / 10) * 10;
 
-        if map.contains_key(&categorie) {
-            map.get_mut(&categorie).unwrap().push(hit);
+        if map.contains_key(&category) {
+            map.get_mut(&category).unwrap().push(hit);
         } else {
-            map.insert(categorie, vec![hit]);
+            map.insert(category, vec![hit]);
         }
     }
 
     map
+}
+
+fn print_info(source: &Option<Cursor>, target: &Option<Cursor>, mode: &Mode) {
+    let source = source.clone();
+    let target = target.clone();
+    let mode = mode.clone();
+
+    println!("[INFO] 1: Save Position 1");
+    println!("[INFO] 2: Save Position 2");
+    println!("[INFO] 3: Calculate");
+    println!("[INFO] 4: Clear Positions");
+    println!("[INFO] 5: Switch Calculation Mode");
+    println!("[INFO] 6: Clear Console");
+    println!();
+
+    if source.is_some() {
+        println!("[INFO] Position 1: ({}, {})", source.as_ref().unwrap().get_x(), source.as_ref().unwrap().get_y());
+    } else {
+        println!("[INFO] Position 1: Not set");
+    }
+
+    if target.is_some() {
+        println!("[INFO] Position 2: ({}, {})", target.as_ref().unwrap().get_x(), target.as_ref().unwrap().get_y());
+    } else {
+        println!("[INFO] Position 2: Not set");
+    }
+
+    println!("[INFO] Mode: {}", mode);
 }

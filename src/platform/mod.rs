@@ -18,6 +18,7 @@ pub enum VK {
     Key3, // show results
     Key4, // clear
     Key5, // switch calculation mode
+    Key6, // clear console
 }
 
 #[derive(Debug)]
@@ -29,8 +30,8 @@ pub struct Rect {
 impl Rect {
     pub fn new(width: i32, height: i32) -> Self {
         Rect {
-            width: width,
-            height: height,
+            width,
+            height,
         }
     }
 
@@ -51,7 +52,7 @@ pub struct Cursor {
 
 impl Cursor {
     pub fn new(x: i32, y: i32) -> Self {
-        Cursor { x: x, y: y }
+        Cursor { x, y }
     }
 
     pub fn get_x(&self) -> i32 {

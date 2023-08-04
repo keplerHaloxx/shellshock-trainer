@@ -21,8 +21,8 @@ pub struct Hit {
 impl Hit {
     fn new(velocity: u32, angle: i32) -> Self {
         Hit {
-            velocity: velocity,
-            angle: angle,
+            velocity,
+            angle,
         }
     }
 
@@ -42,15 +42,15 @@ impl fmt::Display for Hit {
     }
 }
 
-// translates the target position relativ to 'from'
-pub fn translate_target_position_relativ_to_origin(rect: &Rect,
-                                                   from: &Cursor,
-                                                   to: &Cursor)
-                                                   -> (f64, f64) {
+// translates the target position relative to 'from'
+pub fn translate_target_position_relative_to_origin(rect: &Rect,
+                                                    from: &Cursor,
+                                                    to: &Cursor)
+                                                    -> (f64, f64) {
     let from_scaled = scale_position(rect, from);
     let to_scaled = scale_position(rect, to);
 
-    // calc target (x,y) position relativ to 'from'
+    // calc target (x,y) position relative to 'from'
     let x = (from_scaled.0 - to_scaled.0).abs();
     let y = to_scaled.1 - from_scaled.1;
 
@@ -63,12 +63,12 @@ fn scale_position(rect: &Rect, cursor: &Cursor) -> (f64, f64) {
     let window_height = rect.get_height();
 
     // scale factors / scale to base resolution
-    let scalex = BASE_WINDOW_RESOLUTION.0 as f64 / window_width as f64;
-    let scaley = BASE_WINDOW_RESOLUTION.1 as f64 / window_height as f64;
+    let scale_x = BASE_WINDOW_RESOLUTION.0 as f64 / window_width as f64;
+    let scale_y = BASE_WINDOW_RESOLUTION.1 as f64 / window_height as f64;
 
     // cursor position
-    let cx = cursor.get_x() as f64 * scalex;
-    let cy = (window_height - cursor.get_y()) as f64 * scaley; // translate (0,0) from upperleft to bottomleft
+    let cx = cursor.get_x() as f64 * scale_x;
+    let cy = (window_height - cursor.get_y()) as f64 * scale_y; // translate (0,0) from upperleft to bottomleft
 
     (cx, cy)
 }
@@ -100,9 +100,9 @@ fn calc_launch_angle(v: u32, x: f64, y: f64) -> Option<f64> {
     let o = (((v * v) + s.sqrt()) / (GRAVITY * x)).atan(); // launch angle in radians
 
     if o.is_nan() {
-        Option::None
+        None
     } else {
-        Option::Some(o.to_degrees())
+        Some(o.to_degrees())
     }
 }
 
@@ -134,9 +134,9 @@ fn calc_launch_velocity(o: i32, x: f64, y: f64) -> Option<f64> {
     let v = (a / b).sqrt();
 
     if v.is_nan() || v > 100.0 {
-        Option::None
+        None
     } else {
-        Option::Some(v)
+        Some(v)
     }
 }
 

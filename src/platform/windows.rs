@@ -20,7 +20,7 @@ pub struct WinHandle {
 
 impl WinHandle {
     fn new(hwnd: HWND) -> Self {
-        WinHandle { hwnd: hwnd }
+        WinHandle { hwnd }
     }
 }
 
@@ -35,6 +35,7 @@ impl Handle for WinHandle {
             VK::Key3 => 0x33,
             VK::Key4 => 0x34,
             VK::Key5 => 0x35,
+            VK::Key6 => 0x36,
         };
 
         let state = unsafe { user32::GetAsyncKeyState(key_code) };
@@ -84,7 +85,7 @@ fn get_handle_by_title(title: &str) -> Option<WinHandle> {
     let wide: Vec<u16> = OsStr::new(title).encode_wide().chain(once(0)).collect();
     let hwnd = unsafe { user32::FindWindowW(ptr::null(), wide.as_ptr()) };
     if hwnd == ptr::null_mut() {
-        return Option::None;
+        return None;
     }
-    Option::Some(WinHandle::new(hwnd))
+    Some(WinHandle::new(hwnd))
 }
