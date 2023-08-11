@@ -9,12 +9,13 @@ My main interest is not the game itself. The goal of this project was to improve
 
 1. Execute the trainer (installation see below).
 2. Start "Shellshock Live" (the trainer automatically detects a running instance of "Shellshock Live").
-3. There are four hardcoded keys
+3. There are six hardcoded keys
     * Key 1 (save current mouse position as position 1)
     * Key 2 (save current mouse position as position 2)
     * Key 3 (calculate different angle/speed combinations to hit the target (position 2))
     * Key 4 (clear positions)
     * Key 5 (switch calculation mode)
+    * Key 6 (clear console)
 
 Example:
 1. Move the mouse over your tank and press '1'.
@@ -23,7 +24,12 @@ Example:
 
 # Installation (Windows only)
 
-## Install the [Rust](https://www.rust-lang.org) compiler toolchain
+## Way 1
+1. Download the [latest release](https://github.com/keplerHaloxx/shellshock-trainer/releases/latest/download/shellshock-trainer.exe)
+2. Run "shellshock-trainer.exe"
+
+## Way 2
+Install the [Rust](https://www.rust-lang.org) compiler toolchain
 
 - [32-Bit](https://static.rust-lang.org/dist/rust-1.12.1-i686-pc-windows-gnu.msi) or
 - [64-Bit](https://static.rust-lang.org/dist/rust-1.12.1-x86_64-pc-windows-gnu.msi)
@@ -34,8 +40,10 @@ Clone this repository with [Git for Windows](https://git-scm.com)
 ```
 git clone [REPO]
 ```
-    
-Alternatively download this repository
+
+## OR
+
+Download this repository
 ```
 Button "Clone or download" -> "Download ZIP"
 ```
